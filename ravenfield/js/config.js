@@ -12,6 +12,7 @@ export const CFG = {
     airLambda: 2.2,
     sens: 0.0021,
     fov: 82, adsFov: 55, adsTime: 0.16,
+    hp: 100, regenDelay: 6, regenRate: 25,
   },
   rifle: {
     fireMode: 'auto',
@@ -27,4 +28,15 @@ export const CFG = {
     kickRecoverSpeed: 9,
   },
   team: { eagle: 0x3f6fd1, raven: 0xd1483f },
+  bot: {
+    count: BOTS_PER_TEAM,        // per team — tune freely (5 for quick tests)
+    hp: 100, skill: 0.45,        // 0..1 → accuracy/reaction/lead
+    viewRange: 110, fovDeg: 135,
+    speed: 5.4, sprintSpeed: 7.6,
+    rpm: 450, damage: 13, burstMin: 4, burstMax: 9,
+    respawnTime: 5, regenDelay: 6, regenRate: 18,
+    thinkInterval: 0.25,
+    retreatHp: 30, reengageHp: 60,
+  },
+  debug: { paths: false },       // true → draw waypoint graph
 };

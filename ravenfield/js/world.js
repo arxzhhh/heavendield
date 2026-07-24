@@ -314,3 +314,61 @@ export function buildWorld(scene){
     placed++;
   }
 }
+
+/* ---- shared entity collision (used by player.js AND bots.js) ---- */
+const _rc = new THREE.Raycaster();
+export function collideCircle(pos, radius, feetY, headY, step){
+  for (const s of solids){
+    if (headY <= s.minY + 0.05 || feetY >= s.maxY - 0.05) continue;
+    if (s.kind === 'box'){
+      if (s.maxY > feetY && s.maxY - feetY <= step) continue; // steppable
+      const cx = clamp(pos.x, s.minX, s.maxX), cz = clamp(pos.z, s.minZ, s.maxZ);
+      const dx = pos.x - cx, dz = pos.z - cz, d2 = dx*dx + dz*dz;
+      if (d2 < radius*radius){
+        if (d2 > 1e-6){ const d = Math.sqrt(d2), push = radius - d;
+          pos.x += dx/d*push; pos.z += dz/d*push; }
+        else {
+          const px = s.maxX-pos.x, nx = pos.x-s.minX, pz = s.maxZ-pos.z, nz = pos.z-s.minZ;
+          const m = Math.min(px,nx,pz,nz);
+          if (m===px) pos.x = s.maxX+radius; else if (m===nx) pos.x = s.minX-radius;
+          else if (m===pz) pos.z = s.maxZ+radius; else pos.z = s.minZ-radius;
+        }
+      }
+    } else {
+      const dx = pos.x-s.x, dz = pos.z-s.z, rr = radius+s.r, d2 = dx*dx+dz*dz;
+      if (d2 < rr*rr && d2 > 1e-6){ const d = Math.sqrt(d2);
+        pos.x += dx/d*(rr-d); pos.z += dz/d*(rr-d); }
+    }
+  }
+}
+export function raycastWorld(origin, dir, maxDist){
+  _rc.set(origin, dir); _rc.far = maxDist;
+  const hits = _rc.intersectObjects(colliders, false);
+  const prop = hits.length ? hits[0] : null;
+  const terr = raycastTerrain(origin, dir, prop ? prop.distance : maxDist);
+  if (prop && (!terr || prop.distance <= terr.distance))
+    return { point: prop.point.clone(), distance: prop.distance,
+      normal: prop.face.normal.clone().transformDirection(prop.object.matrixWorld) };
+  return terr || null;
+}
+export function nearestSolid(x, z, maxDist){
+  let best = null, bd = maxDist;
+  for (const s of solids){
+    const cx = s.kind==='box' ? (s.minX+s.maxX)/2 : s.x;
+    const cz = s.kind==='box' ? (s.minZ+s.maxZ)/2 : s.z;
+    const r  = s.kind==='box' ? Math.max(s.maxX-s.minX, s.maxZ-s.minZ)/2 : s.r;
+    const d = Math.hypot(x-cx, z-cz) - r;
+    if (d < bd){ bd = d; best = { x:cx, z:cz, r }; }
+  }
+  return best;
+}
+export function supportHeight(x, z, feetY){
+  let floor = terrainHeight(x, z);
+  for (const s of solids){ // stand on crate/box tops (step-up or landing from above)
+    if (s.kind !== 'box') continue;
+    if (x > s.minX-0.2 && x < s.maxX+0.2 &&
+        z > s.minZ-0.2 && z < s.maxZ+0.2 &&
+        s.maxY > floor && s.maxY <= feetY + 0.5) floor = s.maxY;
+  }
+  return floor;
+}
