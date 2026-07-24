@@ -197,8 +197,20 @@ function makeFlag(scene, cp){
     new THREE.MeshBasicMaterial({ color: TEAM_COLORS[cp.owner], transparent:true,
       opacity:0.35, side:THREE.DoubleSide, depthWrite:false }));
   ring.rotation.x = -Math.PI/2; ring.position.y = 0.06; g.add(ring);
+  
+  // progress ring for capture visualization
+  const pr = new THREE.Mesh(
+    new THREE.RingGeometry(cp.radius-0.5, cp.radius, 48, 1, Math.PI/2, 0.001),
+    new THREE.MeshBasicMaterial({ color:0xffffff, transparent:true, opacity:0.85,
+      side:THREE.DoubleSide, depthWrite:false }));
+  pr.rotation.x = -Math.PI/2; pr.position.y = 0.09; pr.visible = false;
+  g.add(pr);
+  
   scene.add(g);
   cp.flagMat = flagMat; cp.ringMat = ring.material;
+  cp.progressRing = pr; cp._lastP = -1; cp._lastTeam = undefined;
+  cp.progress = cp.owner === 'neutral' ? 0 : 1;
+  cp.cappingTeam = null;
   flagAnims.push({ geo:flagGeo, base:flagGeo.attributes.position.array.slice(), phase:cp.x*0.37 });
 }
 export function setCPOwner(cp, owner){ // hook for M4 capture logic
@@ -371,4 +383,17 @@ export function supportHeight(x, z, feetY){
         s.maxY > floor && s.maxY <= feetY + 0.5) floor = s.maxY;
   }
   return floor;
+}
+export function setCPProgress(cp, p, team){
+  if (!cp.progressRing) return;
+  p = clamp(p, 0.001, 1);
+  const show = !!team && p > 0.01 && p < 0.999;
+  cp.progressRing.visible = show;
+  if (!show) return;
+  if (Math.abs(p - cp._lastP) < 0.02 && team === cp._lastTeam) return;
+  cp._lastP = p; cp._lastTeam = team;
+  cp.progressRing.geometry.dispose();
+  cp.progressRing.geometry =
+    new THREE.RingGeometry(cp.radius-0.5, cp.radius, 48, 1, Math.PI/2, p*Math.PI*2);
+  cp.progressRing.material.color.set(TEAM_COLORS[team] || 0xffffff);
 }
