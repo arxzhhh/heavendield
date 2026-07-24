@@ -45,3 +45,37 @@ html,body{margin:0;height:100%;overflow:hidden;background:#8fc3e8;
 #hitmarker i:nth-child(3){transform:rotate(225deg);}
 #hitmarker i:nth-child(4){transform:rotate(315deg);}
 #hitmarker.kill i{background:#ff4b41;}
+
+#tickets{position:fixed;top:12px;left:50%;transform:translateX(-50%);display:flex;
+  align-items:center;gap:10px;z-index:5;pointer-events:none;}
+.tbox{display:flex;align-items:center;gap:9px;background:rgba(14,22,32,.74);color:#fff;
+  padding:6px 14px;font-size:24px;font-weight:800;font-style:italic;min-width:92px;}
+.tbox.eagle{border-left:5px solid #3f6fd1;}
+.tbox.raven{border-right:5px solid #d1483f;justify-content:flex-end;}
+.tbox.low > span[id]{color:#ff5040;animation:pulse 1s infinite;}
+@keyframes pulse{50%{opacity:.3;}}
+.flag{width:16px;height:11px;clip-path:polygon(0 0,100% 0,78% 100%,0 100%);}
+.eagleflag{background:#3f6fd1;} .ravenflag{background:#d1483f;}
+#pips{display:flex;gap:4px;}
+#pips i{width:20px;height:20px;display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:800;font-style:normal;background:#cfd2d6;color:#101820;}
+#pips i.eagle{background:#3f6fd1;color:#fff;}
+#pips i.raven{background:#d1483f;color:#fff;}
+#banner{position:fixed;top:78px;left:50%;transform:translateX(-50%);z-index:5;opacity:0;
+  font-size:26px;font-weight:800;font-style:italic;letter-spacing:3px;color:#fff;
+  text-shadow:0 2px 8px rgba(0,0,0,.55);pointer-events:none;white-space:nowrap;}
+#banner.eagle{color:#7fa9f5;} #banner.raven{color:#f08a80;}
+#killfeed{position:fixed;top:14px;right:16px;z-index:5;text-align:right;pointer-events:none;}
+.kill{font-size:13px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.7);
+  margin-bottom:3px;transition:opacity .4s;}
+.kill b{margin:0 6px;color:#ddd;font-weight:400;}
+#minimap{position:fixed;left:16px;bottom:16px;z-index:5;pointer-events:none;
+  border:1px solid rgba(255,255,255,.28);}
+#endscreen{position:fixed;inset:0;z-index:30;display:none;align-items:center;
+  justify-content:center;background:rgba(8,14,22,.62);cursor:pointer;}
+#endtitle.eagle{color:#5b8bef;} #endtitle.raven{color:#e05e54;}
+
+#overlay{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center;
+  padding-bottom:42px;background:transparent;pointer-events:none;}
+#overlay .hint{background:rgba(18,28,40,.82);color:#cfe0f2;padding:11px 24px;font-weight:700;
+  letter-spacing:2px;font-size:13px;border-left:4px solid #3f6fd1;}

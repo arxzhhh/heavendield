@@ -9,7 +9,12 @@ export function initInput(dom, overlay){
     input.trigger = input.ads = false; });
   addEventListener('contextmenu', e => e.preventDefault());
 
-  overlay.addEventListener('click', () => dom.requestPointerLock());
+  const grab = () => { if (!input.locked){
+    try { const p = dom.requestPointerLock(); if (p && p.catch) p.catch(()=>{}); } catch(e){}
+  }};
+  document.addEventListener('mousedown', grab);
+  document.addEventListener('keydown', grab);
+  
   document.addEventListener('pointerlockchange', () => {
     input.locked = document.pointerLockElement === dom;
     overlay.style.display = input.locked ? 'none' : 'flex';

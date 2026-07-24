@@ -30,16 +30,21 @@
 <div id="hitmarker"><i></i><i></i><i></i><i></i></div>
 <div id="fps"></div>
 
-<div id="overlay"><div class="panel">
-  <h1><span class="blue">EAGLE</span> vs <span class="red">RAVEN</span></h1>
-  <div class="sub">FAN CLONE &middot; MILESTONE 2 &mdash; MAP: HILLLINE</div>
-  <table>
-    <tr><td class="k">WASD</td><td>move</td><td class="k">SHIFT</td><td>sprint</td></tr>
-    <tr><td class="k">SPACE</td><td>jump</td><td class="k">RMB</td><td>iron sights</td></tr>
-    <tr><td class="k">LMB</td><td>fire</td><td class="k">R</td><td>reload</td></tr>
-  </table>
-  <div class="deploy">CLICK TO DEPLOY &raquo;</div>
+<div id="tickets">
+  <div class="tbox eagle"><span class="flag eagleflag"></span><span id="tEagle">0</span></div>
+  <div id="pips"><i>A</i><i>B</i><i>C</i><i>D</i><i>E</i></div>
+  <div class="tbox raven"><span id="tRaven">0</span><span class="flag ravenflag"></span></div>
+</div>
+<div id="banner"></div>
+<div id="killfeed"></div>
+<canvas id="minimap"></canvas>
+<div id="endscreen"><div class="panel">
+  <h1 id="endtitle">EAGLE WINS</h1>
+  <div class="sub" id="endsub"></div>
+  <div class="deploy">CLICK TO RESTART &raquo;</div>
 </div></div>
+
+<div id="overlay"><div class="hint">CLICK OR PRESS ANY KEY TO TAKE CONTROL &mdash; ESC RELEASES</div></div>
 
 <script type="module" src="js/main.js"></script>
 </body>

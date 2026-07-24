@@ -4,14 +4,14 @@ import { clamp, lerp, damp, smooth, D2R } from './utils.js';
 import { terrainHeight, collideCircle, supportHeight, raycastWorld, nearestSolid,
          spawnPosition, controlPoints, TEAM_COLORS } from './world.js';
 import { findPath } from './paths.js';
-import { player, damagePlayer } from './player.js';
+import { player, damagePlayer, PLAYER_TEAM } from './player.js';
 import { spawnTracer, spawnPuff } from './effects.js';
 
 export const bots = [];
 export const botHitboxes = [];
 export const killEvents = [];
 
-const STATE = { ATTACK:0, ENGAGE:1, RETREAT:2, DEAD:3 };
+export const STATE = { ATTACK:0, ENGAGE:1, RETREAT:2, DEAD:3 };
 const RADIUS = 0.4, HEIGHT = 1.75, STEP = 0.5;
 let scene = null;
 
@@ -110,7 +110,10 @@ export function damageBot(b, amount, attacker){
     b.state = STATE.DEAD; b.deadT = 0; b.hidden = false;
     b.respawnT = CFG.bot.respawnTime; b.fallDir = Math.random()<0.5?-1:1;
     b.hitbox.visible = false; b.target = null;
-    killEvents.push({ killer: attacker===player ? 'YOU' : attacker.name, victim: b.name });
+    killEvents.push({
+      killer: attacker === player ? 'YOU' : attacker.name,
+      killerTeam: attacker === player ? PLAYER_TEAM : attacker.team,
+      victim: b.name, victimTeam: b.team });
     return true;
   }
   return false;
@@ -156,7 +159,7 @@ function repath(b, tx, tz){
 }
 function think(b){
   const cands = [];
-  if (!player.dead){
+  if (!player.dead && b.team !== PLAYER_TEAM){
     const d = b.pos.distanceTo(player.pos);
     if (d < CFG.bot.viewRange) cands.push({ d, kind:'player', x:player.pos.x, z:player.pos.z, y:player.pos.y-0.4 });
   }
@@ -229,7 +232,7 @@ function botShoot(b, ti){
   const wh = raycastWorld(muzzle, dir, 260);
   const worldDist = wh ? wh.distance : 260;
   let bestT = Infinity, kind = null, ref = null;
-  if (!player.dead){
+  if (b.team !== PLAYER_TEAM && !player.dead){
     for (const oy of [-1.1, -0.6, -0.1]){
       const t = raySphereT(muzzle.x,muzzle.y,muzzle.z, dir.x,dir.y,dir.z,
         player.pos.x, player.pos.y+oy, player.pos.z, 0.45);

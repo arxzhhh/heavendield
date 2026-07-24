@@ -38,5 +38,11 @@ export const CFG = {
     thinkInterval: 0.25,
     retreatHp: 30, reengageHp: 60,
   },
+  match: {
+    captureTime: 10,                    // seconds for a solo cap
+    capSpeeds: [0, 1, 1.5, 1.8, 2.0],   // multiplier by capturer count (1..4+)
+    bleedInterval: 5,                   // seconds between ticket bleeds
+    bleedPerPoint: 2,                   // tickets per point deficit per bleed
+  },
   debug: { paths: false },       // true → draw waypoint graph
 };
