@@ -17,13 +17,21 @@ export const player = {
   lastFall: 0,                          // consumed by weapon for landing dip
   sprintT: 0, sprintLock: 0,            // owned here; weapon reads/locks
   aimKick: 0,                           // written by weapon (recoil spring)
-  hp: 100, dead: false, deadT: 0, regenT: 0, damageFlash: 0,
+  hp: 100, dead: false, deadT: 0, regenT: 0, damageFlash: 0, lastHurtBy: null,
 };
 
 const RADIUS = 0.4, HEIGHT = 1.75, STEP = 0.5;
 
 export function updatePlayer(dt){
   const P = CFG.player;
+  
+  // mouse look ALWAYS applies while pointer is locked — even dead,
+  // and independent of sprint / fire / reload / ADS
+  if (input.locked){
+    player.yaw -= input.dx * P.sens;
+    player.pitch = clamp(player.pitch - input.dy * P.sens, -1.55, 1.55);
+  }
+  input.dx = input.dy = 0;
   
   if (player.dead){ // freeze while dead; main handles respawn timer
     yawObj.position.copy(player.pos); yawObj.rotation.y = player.yaw;
@@ -82,6 +90,7 @@ export function updatePlayer(dt){
 export function damagePlayer(amount, source){
   if (player.dead) return false;
   player.hp -= amount; player.regenT = 0;
+  player.lastHurtBy = source;
   player.damageFlash = Math.min(1, player.damageFlash + amount/45);
   if (player.hp <= 0){ player.hp = 0; player.dead = true; player.deadT = 0; return true; }
   return false;
