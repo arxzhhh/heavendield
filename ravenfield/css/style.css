@@ -1,0 +1,36 @@
+html,body{margin:0;height:100%;overflow:hidden;background:#8fc3e8;
+  font-family:'Segoe UI','Trebuchet MS',Arial,sans-serif;user-select:none;}
+#app{position:fixed;inset:0;} canvas{display:block;}
+
+/* ---- click-to-play overlay ---- */
+#overlay{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(rgba(15,25,40,.35),rgba(15,25,40,.6));cursor:pointer;}
+.panel{background:#1d2836;color:#eaf1fa;padding:30px 44px 26px;border-top:6px solid #3f6fd1;
+  box-shadow:0 12px 40px rgba(0,0,0,.45);min-width:360px;}
+.panel h1{margin:0 0 4px;font-size:30px;letter-spacing:3px;font-weight:800;font-style:italic;}
+.panel h1 .blue{color:#5b8bef;} .panel h1 .red{color:#e05e54;}
+.panel .sub{color:#9fb4cc;font-size:13px;letter-spacing:2px;margin-bottom:18px;}
+.panel table{border-collapse:collapse;font-size:14px;}
+.panel td{padding:2px 14px 2px 0;color:#c6d5e6;}
+.panel td.k{color:#fff;font-weight:700;text-align:right;}
+.panel .deploy{margin-top:20px;font-size:18px;font-weight:800;letter-spacing:2px;color:#5b8bef;}
+
+/* ---- crosshair (temporary stub; full HUD is Milestone 4) ---- */
+#crosshair{position:fixed;left:50%;top:50%;z-index:5;pointer-events:none;transition:opacity .12s;}
+#crosshair .bar{position:absolute;background:#fff;box-shadow:0 0 2px rgba(0,0,0,.85);}
+#crosshair .bU{width:2px;height:8px;left:-1px;top:-16px;}
+#crosshair .bD{width:2px;height:8px;left:-1px;top:8px;}
+#crosshair .bL{height:2px;width:8px;top:-1px;left:-16px;}
+#crosshair .bR{height:2px;width:8px;top:-1px;left:8px;}
+#crosshair .dot{position:absolute;width:2px;height:2px;left:-1px;top:-1px;background:#fff;
+  box-shadow:0 0 2px rgba(0,0,0,.85);}
+
+/* ---- ammo counter (temporary stub; full HUD is Milestone 4) ---- */
+#ammo{position:fixed;right:26px;bottom:20px;z-index:5;color:#fff;text-align:right;
+  text-shadow:0 1px 3px rgba(0,0,0,.6);pointer-events:none;}
+#ammo .mag{font-size:40px;font-weight:800;font-style:italic;line-height:1;}
+#ammo .res{font-size:20px;font-weight:700;color:#cdd9e8;}
+#ammo .wname{font-size:12px;letter-spacing:2px;color:#cdd9e8;}
+#hint{position:fixed;right:26px;bottom:96px;z-index:5;color:#ffd27a;font-weight:700;
+  font-size:14px;letter-spacing:2px;text-shadow:0 1px 3px rgba(0,0,0,.6);pointer-events:none;}
+#fps{position:fixed;left:12px;top:10px;z-index:5;color:#fff;font-size:12px;opacity:.65;pointer-events:none;}
