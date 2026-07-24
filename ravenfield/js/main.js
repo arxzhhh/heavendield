@@ -4,9 +4,11 @@ import { clamp } from './utils.js';
 import { initInput, input } from './input.js';
 import { buildWorld, updateWorld, spawnPosition, terrainHeight } from './world.js';
 import { player, yawObj, pitchObj, updatePlayer } from './player.js';
-import { createWeapon, updateWeapon, fireControl } from './weapon.js';
+import { createWeapon, updateWeapon, fireControl, gun } from './weapon.js';
 import { initEffects, updateEffects } from './effects.js';
-import { initHUD, updateHUD, setFps } from './hud.js';
+import { initHUD, updateHUD, setFps, setHintOverride } from './hud.js';
+import { initBots, updateBots } from './bots.js';
+import { buildPathDebug } from './paths.js';
 
 const renderer = new THREE.WebGLRenderer({ antialias:true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
@@ -30,12 +32,22 @@ scene.add(yawObj);
 initInput(renderer.domElement, document.getElementById('overlay'));
 initEffects(scene);
 buildWorld(scene);
+initBots(scene);
+if (CFG.debug.paths) buildPathDebug(scene);
 createWeapon(camera);
 initHUD();
 
 // spawn at Eagle base (point A)
 const sp = spawnPosition('eagle', 0);
 player.pos.set(sp.x, terrainHeight(sp.x, sp.z) + CFG.player.eye, sp.z);
+
+function respawnPlayer(){
+  const sp = spawnPosition('eagle', 1 + (Math.random()*6|0));
+  player.pos.set(sp.x, terrainHeight(sp.x, sp.z) + CFG.player.eye, sp.z);
+  player.vel.set(0,0,0);
+  player.hp = CFG.player.hp; player.dead = false; player.deadT = 0; player.damageFlash = 0;
+  gun.visible = true;
+}
 
 const clock = new THREE.Clock();
 let fpsFrames = 0, fpsTime = 0;
@@ -49,9 +61,16 @@ function animate(){
   const sA = updateWeapon(dt, speedFactor, player.grounded, t);
   scene.updateMatrixWorld();
   if (input.locked) fireControl(dt);
+  updateBots(dt);
+  if (player.dead){
+    player.deadT += dt;
+    gun.visible = false;
+    setHintOverride('KILLED — REDEPLOYING');
+    if (player.deadT > 3) respawnPlayer();
+  } else setHintOverride(null);
   updateWorld(t);
   updateEffects(dt);
-  updateHUD(sA);
+  updateHUD(sA, dt);
   renderer.render(scene, camera);
 
   fpsFrames++; fpsTime += dt;

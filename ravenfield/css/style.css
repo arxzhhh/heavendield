@@ -34,3 +34,14 @@ html,body{margin:0;height:100%;overflow:hidden;background:#8fc3e8;
 #hint{position:fixed;right:26px;bottom:96px;z-index:5;color:#ffd27a;font-weight:700;
   font-size:14px;letter-spacing:2px;text-shadow:0 1px 3px rgba(0,0,0,.6);pointer-events:none;}
 #fps{position:fixed;left:12px;top:10px;z-index:5;color:#fff;font-size:12px;opacity:.65;pointer-events:none;}
+
+#vignette{position:fixed;inset:0;z-index:4;pointer-events:none;opacity:0;
+  background:radial-gradient(ellipse at center, rgba(200,0,0,0) 52%, rgba(185,10,10,.55) 100%);}
+#hitmarker{position:fixed;left:50%;top:50%;z-index:6;pointer-events:none;opacity:0;}
+#hitmarker i{position:absolute;left:-1px;top:-11px;width:2px;height:8px;background:#fff;
+  box-shadow:0 0 2px rgba(0,0,0,.85);transform-origin:1px 11px;}
+#hitmarker i:nth-child(1){transform:rotate(45deg);}
+#hitmarker i:nth-child(2){transform:rotate(135deg);}
+#hitmarker i:nth-child(3){transform:rotate(225deg);}
+#hitmarker i:nth-child(4){transform:rotate(315deg);}
+#hitmarker.kill i{background:#ff4b41;}

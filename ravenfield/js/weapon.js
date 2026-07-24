@@ -5,7 +5,9 @@ import { input } from './input.js';
 import { player } from './player.js';
 import { colliders, raycastTerrain } from './world.js';
 import { spawnTracer, spawnPuff, spawnDecal } from './effects.js';
-import { markAmmoDirty } from './hud.js';
+import { markAmmoDirty, showHitmarker } from './hud.js';
+import { botHitboxes, damageBot } from './bots.js';
+import { PLAYER_TEAM } from './player.js';
 
 let camera = null;
 export const wpn = {
@@ -15,7 +17,7 @@ export const wpn = {
   adsT:0, bobPhase:0, dip:0,
 };
 
-let gun, muzzleTip, flash, flashLight;
+let gun = null, muzzleTip, flash, flashLight;
 const matBody = new THREE.MeshLambertMaterial({ color:0x2b2b31 });
 const matDark = new THREE.MeshLambertMaterial({ color:0x1e1e24 });
 const matMag  = new THREE.MeshLambertMaterial({ color:0x3a3a42 });
@@ -95,25 +97,33 @@ function shoot(){
   wpn.tempKick += kv*R.kickRecoverFrac;
   wpn.zKick = 1;
 
-  // --- hitscan: props via raycaster, terrain via analytical heightfield ---
+  // --- hitscan: props, terrain, bots — nearest wins ---
   camera.getWorldPosition(_v1);
   raycaster.set(_v1, dir); raycaster.far = R.range;
-  const hits = raycaster.intersectObjects(colliders, false);
-  const propHit = hits.length ? hits[0] : null;
-  const terrHit = raycastTerrain(_v1, dir, propHit ? propHit.distance : R.range);
-  let end = null, normal = null;
-  if (propHit && (!terrHit || propHit.distance <= terrHit.distance)){
-    end = propHit.point.clone();
+  const propHits = raycaster.intersectObjects(colliders, false);
+  const propHit = propHits.length ? propHits[0] : null;
+  const botHits = raycaster.intersectObjects(botHitboxes, false);
+  const botHit = botHits.find(h => h.object.visible &&
+    h.object.userData.bot.team !== PLAYER_TEAM) || null;   // no friendly fire
+  const surfDist = propHit ? propHit.distance : Infinity;
+  const terrHit = raycastTerrain(_v1, dir,
+    Math.min(surfDist, botHit ? botHit.distance : Infinity, R.range));
+  let end = null, normal = null, dist = R.range;
+  if (botHit && botHit.distance <= surfDist && (!terrHit || botHit.distance <= terrHit.distance)){
+    const killed = damageBot(botHit.object.userData.bot, R.damage, player);
+    showHitmarker(killed);
+    end = botHit.point.clone(); dist = botHit.distance;
+  } else if (propHit && (!terrHit || propHit.distance <= terrHit.distance)){
+    end = propHit.point.clone(); dist = propHit.distance;
     normal = propHit.face.normal.clone().transformDirection(propHit.object.matrixWorld);
-  } else if (terrHit){ end = terrHit.point; normal = terrHit.normal; }
+  } else if (terrHit){ end = terrHit.point; normal = terrHit.normal; dist = terrHit.distance; }
   if (!end) end = _v1.clone().addScaledVector(dir, R.range);
 
-  // --- feedback ---
   muzzleTip.getWorldPosition(_v2);
   spawnTracer(_v2.clone(), end);
   if (normal){
     spawnPuff(end.clone().addScaledVector(normal, .03));
-    if (end.distanceTo(_v1) > 1) spawnDecal(end, normal);
+    if (dist > 1) spawnDecal(end, normal);
   }
   flash.visible = true; flash.rotation.z = Math.random()*Math.PI;
   const s = .8 + Math.random()*.5; flash.scale.setScalar(s);
